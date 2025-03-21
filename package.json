@@ -1,17 +1,30 @@
 {
   "name": "jarvinho-drive",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/main/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "ts-node src/main/index.ts",
+    "test:client": "npx ts-node src/tests/wsClientTest.ts",
+    "test:full": "npm run start:drive & npm run test:client",
+    "build": "tsc",
+    "electron": "npm run build && electron .",
+    "dev": "ts-node src/main/index.ts"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "devDependencies": {
-    "electron": "^35.0.3",
-    "electron-builder": "^25.1.8"
+    "electron": "^29.0.0",
+    "typescript": "^5.3.0",
+    "ts-node": "^10.9.1",
+    "electron-builder": "^24.5.0"
+  },
+  "build": {
+    "appId": "com.jarvinho.drive",
+    "files": [
+      "dist/**/*",
+      "assets/**/*"
+    ],
+    "extraMetadata": {
+      "main": "dist/main/index.js"
+    }
   },
   "dependencies": {
     "@types/node": "^22.13.11",
