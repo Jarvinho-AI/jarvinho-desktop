@@ -1,7 +1,7 @@
 import { app } from 'electron';
-import { startWebSocketServer } from './modules/websocket/wsServer';
+import { startWebSocketClient } from './modules/websocket/wsClient';
 
 app.whenReady().then(() => {
-  startWebSocketServer();
+  startWebSocketClient();
   console.log('Jarvinho Drive iniciado e escutando comandos!');
 });
