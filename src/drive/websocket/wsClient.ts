@@ -1,4 +1,5 @@
 import WebSocket from 'ws';
+import { executeCommand } from '../modules/execModule';
 
 const SERVER_URL = 'ws://localhost:3000'; // URL do servidor Ragon
 const DEVICE_ID = '123456'; // Identificação do Drive
@@ -11,14 +12,32 @@ export function startWebSocketClient() {
     socket.send(JSON.stringify({ type: 'register', deviceID: DEVICE_ID }));
   });
 
-  socket.on('message', (message) => {
+  socket.on('message', async(message) => {
     console.log(`[DRIVE] Comando recebido: ${message}`);
 
     try {
       const data = JSON.parse(message.toString());
 
       if (data.type === 'command') {
-        console.log(`[DRIVE] Executando comando: ${data.command}`);
+        console.log(`[DRIVE] Comando recebido: ${data.command}`);
+
+        try {
+          const output = await executeCommand(data.command);
+
+          socket.send(JSON.stringify({
+            type: 'command_result',
+            requestId: data.requestId,
+            status: 'success',
+            output,
+          }));
+        } catch (error: any) {
+          socket.send(JSON.stringify({
+            type: 'command_result',
+            requestId: data.requestId,
+            status: 'error',
+            error: error.message,
+          }));
+        }
       }
     } catch (error) {
       console.error('[DRIVE] Erro ao processar mensagem:', error);

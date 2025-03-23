@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jarvinho APP</title>
+</head>
+<body>
+    <h1>Jarvinho Desktop</h1>
+    <p>Pasta base dos comandos:</p>
+    <pre id="user-home"></pre>
+  
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+          const path = window.jarvinhoAPI?.getUserHome?.();
+          if (path) {
+            document.getElementById('user-home').textContent = path;
+          } else {
+            document.getElementById('user-home').textContent = 'Falha ao carregar diretório.';
+          }
+        });
+      </script>
+  </body>
+</html>
+

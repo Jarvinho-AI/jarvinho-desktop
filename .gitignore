@@ -37,6 +37,8 @@ Thumbs.db
 # Ignore built ts files
 dist/**/*
 
+src/dist/*
+
 # ignore yarn.lock
 yarn.lock
 
