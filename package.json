@@ -5,25 +5,35 @@
   "scripts": {
     "copy-assets": "cpy src/assets/**/* dist/assets/ --parents",
     "copy-html": "cpy app/index.html ../dist/ --cwd=src",
-    "dev": "ts-node src/main.ts",
-    "build": "tsc && npm run copy-html && npm run copy-assets",
-    "start": "electron ."
+    "copy-renderer": "cpy app/renderer/dist/ ../dist/ --cwd=src",
+    "start": "electron .",
+    "electron-dev": "esbuild-register && electron src/main.ts",
+    "build": "tsc && npm run build-renderer && npm run copy-renderer && npm run copy-assets",
+    "dev": "npm run build && npm run start",
+    "build-renderer": "cd src/app/renderer && npm run build",
+    "dev-renderer": "cd src/app/renderer && npm run dev",
+    "dev-electron": "wait-on tcp:5173 && ts-node src/main.ts"
   },
   "devDependencies": {
+    "concurrently": "^9.1.2",
+    "cpy-cli": "^4.1.0",
     "electron": "^29.0.0",
-    "typescript": "^5.3.0",
-    "ts-node": "^10.9.1",
     "electron-builder": "^24.5.0",
-    "cpy-cli": "^4.1.0"
+    "esbuild": "^0.25.1",
+    "esbuild-register": "^3.6.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.3.0",
+    "wait-on": "^8.0.3"
   },
   "build": {
     "appId": "com.jarvinho.drive",
     "files": [
       "dist/**/*",
-      "assets/**/*"
+      "assets/**/*",
+      "src/app/renderer/dist/**/*"
     ],
     "extraMetadata": {
-      "main": "dist/main/index.js"
+      "main": "dist/main.js"
     }
   },
   "dependencies": {

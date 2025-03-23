@@ -8,6 +8,11 @@
 - 🧰 Electron Builder
 - 📡 WebSocket
 - 📁 Empacotamento multiplataforma
+- ⚡ Vite (build rápido e moderno)
+- ⚛️ React (interface reativa)
+- 💨 Tailwind CSS (estilização utilitária)
+- 🎨 shadcn/ui (componentes lindões, acessíveis e já prontos)
+- 🧠 Integrado ao seu Electron
 
 ---
 
