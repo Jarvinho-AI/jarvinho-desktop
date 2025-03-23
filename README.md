@@ -87,70 +87,105 @@ O **App** e o **Drive** funcionam como componentes independentes dentro da mesma
 
 ---
 
-## 🔌 Módulo: DRIVE
+# 🧠 Arquitetura Modular — Jarvinho Drive
 
-O **Drive** é responsável por:
-
-1. Estabelecer uma comunicação WebSocket com o servidor central (Hagon).
-2. Executar comandos de forma segura e controlada no dispositivo local.
-3. Retornar o resultado da execução diretamente para o servidor.
+O módulo **Drive** é responsável por manter uma conexão WebSocket ativa com o backend (Ragon), validar e executar comandos recebidos no computador local, respeitando regras de segurança e autenticação. A estrutura segue um padrão arquitetural modular e escalável.
 
 ---
 
-## 🏗️ Estrutura Arquitetural do Drive
-
-A arquitetura do Drive segue o padrão **MVC invertido**, adaptado para sistemas baseados em eventos e execução de comandos locais. Cada camada tem responsabilidades bem definidas, garantindo organização, segurança e escalabilidade:
+## 🗂️ Estrutura de Pastas (Drive)
 
 ```
 src/drive/
-├── models/
-│   Define a estrutura e a tipagem dos dados recebidos. 
-│   Responsável por validar e transformar os dados crus (geralmente em JSON) 
-│   para um formato tipado e seguro.
-│   Exemplo: `CommandModel` com método `parseJson`.
-│
-├── services/
-│   Contém a lógica de negócio.
-│   Aqui são feitas as ações mais críticas, como a execução de comandos no sistema 
-│   operacional, com controle de diretório e tratamento de erros.
-│   Exemplo: `commandService` que usa `child_process` para executar scripts.
-│
 ├── controllers/
-│   Camada responsável por orquestrar o fluxo entre os dados recebidos e os serviços.
-│   Faz a validação inicial, chama os serviços e envia as respostas para o WebSocket.
-│   Exemplo: `commandController` recebendo dados e respondendo com sucesso ou erro.
+│   └── commandController.ts        # Fluxo principal do recebimento do comando
+│
+├── models/
+│   └── CommandModel.ts             # Tipagem e validação dos dados recebidos
+│
+├── modules/
+│   ├── authentication/             # (futuro) Módulo de autenticação local
+│   └── execmodule/
+│       └── services/
+│           └── commandService.ts   # Execução de comandos no sistema
 │
 ├── routes/
-│   Define os canais de escuta ou entradas do sistema.
-│   No caso do Drive, define os listeners dos eventos recebidos via WebSocket.
-│   Exemplo: `socketRoutes` que define que "message" será tratado pelo controller.
-│
-├── websocket/
-│   Implementa o cliente WebSocket que conecta ao servidor Ragon.
-│   Cuida da reconexão, envio de mensagens iniciais (como o registro do device) 
-│   e delega o tratamento de mensagens às rotas.
-│   Exemplo: `wsClient` com reconexão automática e integração com `socketRoutes`.
+│   └── socketRoutes.ts             # Mapeamento dos eventos recebidos pelo WebSocket
 │
 ├── utils/
-│   Funções utilitárias que não pertencem diretamente à regra de negócio.
-│   Exemplo: `logger.ts` para logs padronizados.
+│   └── ...                         # Funções utilitárias
+│
+├── websocket/
+│   ├── wsClient.ts                 # Cliente WebSocket do Drive
+│   └── index.ts                    # Entry do WebSocket no processo principal
 ```
 
 ---
 
 ## 🔁 Fluxo de Execução
 
-1. O `wsClient.ts` se conecta ao servidor via WebSocket.
-2. Quando uma mensagem chega, ela é passada para `socketRoutes`.
-3. A rota direciona para o `commandController`.
-4. O controller valida o comando com `CommandModel`.
-5. Se for válido, o `commandService` executa o comando.
-6. O controller envia a resposta de volta via WebSocket.
+Com base no seu fluxograma, o fluxo de execução completo é:
+
+1. **WebSocket (wsClient)**: escuta comandos do servidor Ragon.
+2. **Rotas (socketRoutes)**: redireciona os tipos de mensagens para seus controladores.
+3. **Controller (commandController)**:
+   - Valida o formato do comando (via `CommandModel`);
+   - Garante que o comando veio para o dispositivo correto;
+   - Chama o **Security Module** para checagem de segurança;
+   - Em caso positivo, encaminha para o **Exec Module**;
+   - A resposta da execução é enviada ao Ragon.
+4. **ExecModule > commandService**: executa de fato o comando com `child_process`, dentro de um ambiente controlado.
+5. **Receiver/Sender (via socket)**: envia a resposta de volta para o servidor.
 
 ---
 
-Esse padrão garante que qualquer nova funcionalidade (como captura de tela, shutdown, leitura de arquivos, etc.) possa ser adicionada de forma modular, criando apenas novos modelos, serviços e controladores — mantendo o Drive separado do App, mas ainda totalmente integrado a ele.
+## 📌 Módulos e Suas Responsabilidades
 
+### ✅ Exec Module
+- Responsável por realizar a execução do comando.
+- Baseado no `child_process`, com segurança de diretório.
+- Usa `commandService.ts`.
+
+### 🔐 Security Module *(em desenvolvimento)*
+- Aplicará validações de segurança (comandos perigosos, diretórios proibidos, etc).
+- Será chamado pelo `controller` antes da execução real.
+
+### 🧾 Auth Module *(em desenvolvimento)*
+- Validará tokens locais, permissões e status do device.
+- Pode reutilizar informações da Firebase Auth ou mecanismo offline.
+
+### 🔁 Receiver/Sender
+- Integra o WebSocket com o resto da arquitetura.
+- Mantém canal bidirecional com o servidor.
+
+---
+
+## 🧱 Visão Arquitetural (Simplificada)
+
+```
+[ WebSocket ] 
+     ↓
+[ socketRoutes.ts ]
+     ↓
+[ commandController.ts ]
+     ↓
+[ Validate device ID ]
+     ↓
+[ Security Module ]
+     ↓
+[ Exec Module ]
+     ↓
+[ Send response ]
+```
+
+
+
+Esse padrão garante:
+- Clareza na responsabilidade de cada módulo;
+- Flexibilidade para adicionar novos módulos;
+- Segurança e rastreabilidade em cada passo da execução.
+
+---
 
 ## 📡 Conexão com o sistema
 
