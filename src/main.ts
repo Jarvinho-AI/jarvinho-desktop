@@ -1,6 +1,6 @@
-const { app, BrowserWindow, Tray } = require('electron');
 import { spawn } from 'child_process';
-const path = require('path');
+import { app, BrowserWindow, Tray } from 'electron'
+import path from 'path'
 
 let mainWindow;
 let tray = null;
@@ -13,11 +13,13 @@ function createMainWindow() {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: false // <--- garante que 'os' e 'electron' funcionem no preload
-    }
+      sandbox: false,
+    },
   });
 
-  mainWindow.loadFile(path.join(__dirname, 'app', 'index.html'));
+  const isDev = process.env.NODE_ENV === "development"
+  mainWindow.loadFile(path.join(__dirname,  "app",'renderer', "dist", 'index.html'))
+
 }
 
 function startDriveProcess() {

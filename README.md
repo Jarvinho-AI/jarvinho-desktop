@@ -8,6 +8,11 @@
 - 🧰 Electron Builder
 - 📡 WebSocket
 - 📁 Empacotamento multiplataforma
+- ⚡ Vite (build rápido e moderno)
+- ⚛️ React (interface reativa)
+- 💨 Tailwind CSS (estilização utilitária)
+- 🎨 shadcn/ui (componentes lindões, acessíveis e já prontos)
+- 🧠 Integrado ao seu Electron
 
 ---
 
@@ -186,6 +191,86 @@ Esse padrão garante:
 - Segurança e rastreabilidade em cada passo da execução.
 
 ---
+
+# Jarvinho Desktop (Electron + React + Tailwind + shadcn/ui)
+
+## ✅ Tecnologias Utilizadas
+
+- **Electron**: Runtime desktop
+- **React 19 + Vite**: Frontend moderno e leve
+- **Tailwind CSS v4 + PostCSS**
+- **shadcn/ui**: Componentes acessíveis e estilizados
+- **TypeScript**
+
+---
+
+## 📁 Estrutura de Pastas
+
+```
+src/
+├── app/
+│   └── renderer/         # Projeto React com Vite
+│       └── src/          # Componentes React
+├── drive/                # WebSocket + execução de comandos
+├── main.ts               # Entry principal Electron
+├── preload.ts            # Preload do Electron
+dist/
+└── renderer/             # Build do Vite copiado para cá
+```
+
+---
+
+## 🚀 Scripts Importantes
+
+```bash
+# Build completo (Electron + Vite + Assets)
+npm run build
+
+# Iniciar app em modo produção (usando dist/)
+npm run start
+```
+
+---
+
+## 📦 Scripts no package.json
+
+```json
+"scripts": {
+  "dev": "npm run build && npm run start",
+  "start": "electron .",
+  "build": "tsc && npm run build-renderer && npm run copy-renderer && npm run copy-assets",
+  "build-renderer": "cd src/app/renderer && npm run build",
+  "copy-renderer": "cpy dist/**/* ../../../dist/renderer/ --cwd=src/app/renderer --parents",
+  "copy-assets": "cpy src/assets/**/* dist/assets/ --parents"
+}
+```
+
+---
+
+## ⚙️ Configurações cruciais
+
+### `vite.config.ts`
+```ts
+export default defineConfig({
+  base: "./", // Para Electron carregar assets corretamente
+  ...
+})
+```
+
+### `main.ts`
+```ts
+mainWindow.loadFile(
+  path.join(__dirname, "renderer", "index.html")
+)
+```
+
+---
+
+## 🧠 Observações
+
+- O build do Vite é copiado para `dist/renderer/`
+- O Electron sempre carrega o `index.html` como se estivesse em produção
+- Sem uso de `ts-node` no Electron (evita bugs)
 
 ## 📡 Conexão com o sistema
 
