@@ -1,8 +1,8 @@
 import WebSocket from 'ws';
-import { executeCommand } from '../modules/execModule';
+import { registerSocketRoutes } from '../routes/socketRoutes';
 
-const SERVER_URL = 'ws://localhost:3000'; // URL do servidor Ragon
-const DEVICE_ID = '123456'; // Identificação do Drive
+const SERVER_URL = 'ws://localhost:3000';
+const DEVICE_ID = '123456';
 
 export function startWebSocketClient() {
   const socket = new WebSocket(SERVER_URL);
@@ -12,40 +12,10 @@ export function startWebSocketClient() {
     socket.send(JSON.stringify({ type: 'register', deviceID: DEVICE_ID }));
   });
 
-  socket.on('message', async(message) => {
-    console.log(`[DRIVE] Comando recebido: ${message}`);
-
-    try {
-      const data = JSON.parse(message.toString());
-
-      if (data.type === 'command') {
-        console.log(`[DRIVE] Comando recebido: ${data.command}`);
-
-        try {
-          const output = await executeCommand(data.command);
-
-          socket.send(JSON.stringify({
-            type: 'command_result',
-            requestId: data.requestId,
-            status: 'success',
-            output,
-          }));
-        } catch (error: any) {
-          socket.send(JSON.stringify({
-            type: 'command_result',
-            requestId: data.requestId,
-            status: 'error',
-            error: error.message,
-          }));
-        }
-      }
-    } catch (error) {
-      console.error('[DRIVE] Erro ao processar mensagem:', error);
-    }
-  });
+  registerSocketRoutes(socket);
 
   socket.on('close', () => {
-    console.log('[DRIVE] Desconectado do Ragon. Tentando reconectar...');
+    console.log('[DRIVE] Desconectado. Tentando reconectar...');
     setTimeout(startWebSocketClient, 5000);
   });
 
