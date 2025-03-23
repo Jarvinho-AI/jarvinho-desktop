@@ -9,7 +9,7 @@ export function startWebSocketClient() {
 
   socket.on('open', () => {
     console.log('[DRIVE] Conectado ao Ragon.');
-    socket.send(JSON.stringify({ type: 'register', deviceID: DEVICE_ID }));
+    socket.send(JSON.stringify({ type: 'register', deviceId: DEVICE_ID }));
   });
 
   registerSocketRoutes(socket);

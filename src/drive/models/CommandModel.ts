@@ -11,7 +11,7 @@ export interface Command {
         typeof data === 'object' &&
         data !== null &&
         typeof data.command === 'string' &&
-        typeof data.deviceId === 'string' &&
+        typeof data.requestId === 'string' &&
         typeof data.deviceId === 'string' &&
         typeof data.type === 'string'
       ) {

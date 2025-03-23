@@ -19,6 +19,7 @@ export async function handleIncomingMessage(message: string, socket: WebSocket) 
 
       socket.send(JSON.stringify({
         type: 'command_result',
+        deviceId: command.deviceId,
         requestId: command.requestId,
         status: 'success',
         output,
@@ -26,6 +27,7 @@ export async function handleIncomingMessage(message: string, socket: WebSocket) 
     } catch (error: any) {
       socket.send(JSON.stringify({
         type: 'command_result',
+        deviceId: command.deviceId,
         requestId: command.requestId,
         status: 'error',
         error: error.message,
