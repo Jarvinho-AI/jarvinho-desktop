@@ -1,5 +1,5 @@
 import { CommandModel } from '../models/CommandModel';
-import { executeCommand } from '../modules/execmodule/services/commandService';
+import { executeCommand } from '../modules/execmodule/commandService';
 import WebSocket from 'ws';
 
 export async function handleIncomingMessage(message: string, socket: WebSocket) {
