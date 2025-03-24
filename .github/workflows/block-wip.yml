@@ -1,0 +1,18 @@
+name: Block WIP Pull Requests
+
+on:
+  pull_request:
+    types: [opened, labeled, unlabeled, synchronize]
+
+jobs:
+  block-wip:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for WIP label
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const labels = context.payload.pull_request.labels.map(label => label.name);
+            if (labels.includes('WIP')) {
+              core.setFailed('❌ This PR is marked as WIP and cannot be merged.');
+            }
